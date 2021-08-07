@@ -66,17 +66,29 @@ void AD7606_StartConvst(void)
 	HAL_GPIO_WritePin(CO_A_GPIO_Port, CO_A_Pin, GPIO_PIN_RESET); //	CO_A_L;
 	HAL_GPIO_WritePin(CO_B_GPIO_Port, CO_B_Pin, GPIO_PIN_RESET); //	CO_B_L;
 	HAL_Delay(1);
+//	for(int i = 20; i > 0; i--){
+//		__NOP();//1000/168 ns = 5.85ns
+//	}
 	HAL_GPIO_WritePin(CO_A_GPIO_Port, CO_A_Pin, GPIO_PIN_SET); //	CO_A_H;
 	HAL_GPIO_WritePin(CO_B_GPIO_Port, CO_B_Pin, GPIO_PIN_SET); //	CO_B_H;
 	HAL_Delay(1);
+//	for(int i = 20; i > 0; i--){
+//		__NOP();//1000/168 ns = 5.85ns
+//	}
 }
 
 void AD7606_RESET(void)
 {
 	HAL_GPIO_WritePin(REST_GPIO_Port, REST_Pin, GPIO_PIN_RESET); //REST_L;
 	HAL_Delay(1);
-	HAL_GPIO_WritePin(REST_GPIO_Port, REST_Pin, GPIO_PIN_SET); //REST_L;//REST_H;
+//	for(int i = 20; i > 0; i--){
+//		__NOP();//1000/168 ns = 5.85ns
+//	}
+	HAL_GPIO_WritePin(REST_GPIO_Port, REST_Pin, GPIO_PIN_SET); //REST_H;
 	HAL_Delay(1);
+//	for(int i = 20; i > 0; i--){
+//		__NOP();//1000/168 ns = 5.85ns
+//	}
 	HAL_GPIO_WritePin(REST_GPIO_Port, REST_Pin, GPIO_PIN_RESET); //REST_L;
 }
 
@@ -86,10 +98,8 @@ void AD7606_Init(void)
 //	GPIO_AD7606_Configuration();
 	HAL_GPIO_WritePin(CO_A_GPIO_Port, CO_A_Pin, GPIO_PIN_SET); //	CO_A_H;
 	HAL_GPIO_WritePin(CO_B_GPIO_Port, CO_B_Pin, GPIO_PIN_SET); //	CO_B_H;
-//	delay_ms(1);
 	HAL_Delay(1);
 	HAL_GPIO_WritePin(SER_GPIO_Port, SER_Pin, GPIO_PIN_SET); //SER_H;
-//	HAL_GPIO_WritePin(STBY_GPIO_Port, STBY_Pin, GPIO_PIN_SET); //STBY_H;
 
 	AD7606_RESET();
 	HAL_Delay(1);
@@ -101,6 +111,8 @@ void AD7606_ReadData(int * DB_data)
 {
 	HAL_SPI_Receive(&hspi2, (uint8_t *)DB_data, 8, 1000);
 }
+
+
 /* USER CODE END 0 */
 
 /**
@@ -110,11 +122,11 @@ void AD7606_ReadData(int * DB_data)
 int main(void)
 {
   /* USER CODE BEGIN 1 */
- char UART_BUF[12] = "you press A!";
- char dis_buf[40];
- int DB_data[80] = {0};
- int i;
- int temp;
+// uint8_t UART_BUF[12] = "you press A!";
+ uint8_t dis_buf[40];
+ int16_t DB_data[8] = {0};
+ int16_t i;
+ int16_t temp;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -151,9 +163,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_SET); // �øߣ�������
-	  HAL_Delay(500); // ��ʱ 500ms
-	  HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_RESET);// �õͣ�������
+//	  HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_SET); // �øߣ�������
+//	  HAL_Delay(500); // ��ʱ 500ms
+//	  HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_RESET);// �õͣ�������
 	  HAL_Delay(500); // ��ʱ 500ms
 
 //	  HAL_UART_Transmit(&hlpuart1,UART_BUF,12,0xffff);
@@ -171,12 +183,11 @@ int main(void)
 
 //	  HAL_UART_Transmit(&hlpuart1,DB_data,16,0xffff);
 //	  DB_data[i];
-	  temp =(uint16_t)(DB_data[2]^0x8000);
-	  HAL_UART_Transmit(&hlpuart1,temp >> 8,1,0xffff); //& 0xff
+//	  temp =(uint16_t)(DB_data[3]^0x8000);
+//	  HAL_UART_Transmit(&hlpuart1,temp >> 8,1,0xffff); //& 0xff
+//	  HAL_UART_Transmit(&hlpuart1,temp & 0xff,1,0xffff);
 //	  HAL_Delay(100);
-	  HAL_UART_Transmit(&hlpuart1,temp & 0xff,1,0xffff);
-//	  HAL_Delay(100);
-//	  HAL_UART_Transmit(&hlpuart1,DB_data[3],,0xffff);
+	  HAL_UART_Transmit(&hlpuart1,'C',1,0xffff);
 //	  printf("hell0 \r");
   }
   /* USER CODE END 3 */
@@ -363,47 +374,26 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, SER_Pin|CO_A_Pin|CO_B_Pin|REST_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(CS_N_GPIO_Port, CS_N_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin : LED_B_Pin */
-  GPIO_InitStruct.Pin = LED_B_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(LED_B_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : SER_Pin CO_A_Pin CO_B_Pin REST_Pin */
   GPIO_InitStruct.Pin = SER_Pin|CO_A_Pin|CO_B_Pin|REST_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : BUSY_Pin */
   GPIO_InitStruct.Pin = BUSY_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(BUSY_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : CS_N_Pin */
-  GPIO_InitStruct.Pin = CS_N_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(CS_N_GPIO_Port, &GPIO_InitStruct);
 
 }
 
